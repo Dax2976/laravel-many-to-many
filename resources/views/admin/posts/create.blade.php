@@ -27,7 +27,6 @@
                         <input type="text" name="image" placeholder="Inserisci immagine">
                     </div>
                     <hr>
-                    <hr>
                     <h5>TAGS:</h5>
                     @foreach ( $tags as $tag )
                         <div class="form-check form-check-inline">
