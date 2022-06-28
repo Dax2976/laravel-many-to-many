@@ -8,6 +8,9 @@ use Illuminate\Http\Request;
 use App\Model\Post;
 use App\Model\Tag;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
+use App\Mail\SendNewMail;
 
 
 class PostController extends Controller
@@ -29,14 +32,23 @@ class PostController extends Controller
 
     public function store(Request $request){
         $data = $request->all();
+        $user = Auth::user();
         $post = new Post();
+
+        if(array_key_exists('image', $data)){
+            $image_url = Storage::put('post_images', $data['image']);
+            $data['image'] = $image_url;
+        }
+
         $post->fill($data);
         $post->slug = Str::slug($post->title,'-');
         $post->save();
 
         if ( array_key_exists( 'tags', $data ) )  $post->tags()->attach($data['tags']);
-
         return rederict()->route('admin.posts.index');
+
+        $mail = New SendNewMail();
+        Mail::to($user->email)->send($mail);
     }
 
     public function edit(Post $post){
@@ -44,8 +56,18 @@ class PostController extends Controller
     }
 
     public function update(Request $request, Post $post){
+
         $data = $request->all();
         $post['slug'] = Str::slug($request->title,'-');
+
+        if(array_key_exists('image', $data)){
+            if($post->image) Storage::delete($post->image);
+
+            $image_url = Storage::put('post_images', $data['image']);
+            $data['image'] = $image_url;
+        }
+
+       
         $post->update($data);
 
         return redirect()->route('admin.posts.index',$post);

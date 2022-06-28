@@ -4,7 +4,7 @@
         <div class="row">
             <div class="col">
                 <h3>{{$post->title}}</h3>
-                <img src="{{$post->image}}" alt="">
+                <img src="{{assets("storage/$post->image")}}" alt="">
                 <p>{{$post->description}}</p>
                 <h5>Tags:</h5>
                 @forelse ( $post->$tags as $tag)
